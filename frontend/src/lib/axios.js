@@ -8,4 +8,17 @@ const axiosInstance = axios.create({
   withCredentials: true, // by adding this field browser will send the cookies to server automatically, on every single req
 });
 
+axiosInstance.interceptors.request.use(async (config) => {
+  try {
+    // Dynamically get the token from Clerk's global window object or hook
+    const token = await window.Clerk?.session?.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch (error) {
+    console.error("Error fetching Clerk token", error);
+  }
+  return config;
+});
+
 export default axiosInstance;
